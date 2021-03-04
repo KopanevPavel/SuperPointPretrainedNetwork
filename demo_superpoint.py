@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # %BANNER_BEGIN%
 # ---------------------------------------------------------------------
@@ -52,6 +52,11 @@ import time
 
 import cv2
 import torch
+
+from torch.utils.tensorboard import SummaryWriter
+from datetime import datetime
+
+writer = SummaryWriter('logs/superpoint_run_'+datetime.today().strftime('%Y-%m-%d'))
 
 # Stub to warn about opencv version.
 if int(cv2.__version__[0]) < 3: # pragma: no cover
@@ -140,6 +145,7 @@ class SuperPointFrontend(object):
     self.net = SuperPointNet()
     if cuda:
       # Train on GPU, deploy on GPU.
+      print("Train on GPU, deploy on GPU")
       self.net.load_state_dict(torch.load(weights_path))
       self.net = self.net.cuda()
     else:
@@ -232,6 +238,8 @@ class SuperPointFrontend(object):
     if self.cuda:
       inp = inp.cuda()
     # Forward pass of network.
+    #writer.add_graph(self.net, inp)
+    #writer.close()
     outs = self.net.forward(inp)
     semi, coarse_desc = outs[0], outs[1]
     # Convert pytorch -> numpy.
